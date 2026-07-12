@@ -1,0 +1,371 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  CANDIDATE
+  ADMIN
+}
+
+enum ExperienceLevel {
+  ENTRY_LEVEL
+  MID_LEVEL
+  SENIOR
+  LEAD
+}
+
+enum ResumeParsingStatus {
+  PENDING
+  PARSING
+  COMPLETED
+  FAILED
+}
+
+enum InterviewDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum InterviewMode {
+  TEXT
+  VOICE
+}
+
+enum InterviewStatus {
+  DRAFT
+  READY
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+enum InterviewType {
+  TECHNICAL
+  CODING
+  BEHAVIORAL
+  HR
+  MIXED
+}
+
+enum InterviewCompany {
+  GENERIC
+  AMAZON
+  GOOGLE
+  MICROSOFT
+  FLIPKART
+  ADOBE
+  ATLASSIAN
+  UBER
+  GOLDMAN_SACHS
+  SALESFORCE
+}
+
+enum InterviewExperienceLevel {
+  ENTRY
+  JUNIOR
+  MID
+  SENIOR
+  LEAD
+}
+
+
+enum InterviewRoundType {
+  RESUME
+  TECHNICAL
+  BEHAVIORAL
+  CODING
+  CS_FUNDAMENTALS
+}
+
+enum InterviewRoundStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum QuestionSource {
+  AI_GENERATED
+  PREDEFINED
+}
+
+enum CodingDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ProgrammingLanguage {
+  JAVASCRIPT
+  TYPESCRIPT
+  PYTHON
+  GO
+  JAVA
+  CPP
+  C
+}
+
+enum SubmissionStatus {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  COMPILATION_ERROR
+  RUNTIME_ERROR
+}
+
+model User {
+  id             String          @id @default(uuid()) @db.Uuid
+  email          String          @unique
+  passwordHash   String
+  role           UserRole        @default(CANDIDATE)
+  emailVerified  Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  
+  profile        UserProfile?
+  resumes        Resume[]
+  interviews     Interview[]
+  submissions    CodingSubmission[]
+  refreshSessions RefreshSession[]
+
+  @@index([email])
+}
+
+model UserProfile {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @unique @db.Uuid
+  fullName        String?
+  headline        String?
+  bio             String?
+  experienceLevel ExperienceLevel?
+  targetRoles     String[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Resume {
+  id               String              @id @default(uuid()) @db.Uuid
+  userId           String              @db.Uuid
+  originalFileName String
+  storageKey       String
+  mimeType         String
+  fileSize         Int
+  parsingStatus    ResumeParsingStatus @default(PENDING)
+  rawText          String?             @db.Text
+  structuredData   Json?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  isArchived       Boolean             @default(false)
+
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interviews       Interview[]
+
+  @@index([userId])
+}
+
+model Interview {
+  id              String                   @id @default(uuid()) @db.Uuid
+  userId          String                   @db.Uuid
+  title           String
+  targetRole      String
+  companyName     String?
+  company         InterviewCompany         @default(GENERIC)
+  type            InterviewType
+  difficulty      InterviewDifficulty      @default(MEDIUM)
+  mode            InterviewMode
+  experienceLevel InterviewExperienceLevel
+  skills          String[]
+  jobDescription  String?
+  duration        Int
+  status          InterviewStatus          @default(DRAFT)
+  resumeId        String?                  @db.Uuid
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  user            User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rounds          InterviewRound[]
+  report          InterviewReport?
+  resume          Resume?                  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model InterviewRound {
+  id          String               @id @default(uuid()) @db.Uuid
+  interviewId String               @db.Uuid
+  type        InterviewRoundType
+  sequence    Int
+  status      InterviewRoundStatus @default(PENDING)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  interview   Interview            @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  submissions CodingSubmission[]
+
+  @@unique([interviewId, sequence])
+}
+
+model Question {
+  id               String         @id @default(uuid()) @db.Uuid
+  interviewRoundId String         @db.Uuid
+  parentQuestionId String?        @db.Uuid
+  codingProblemId  String?        @db.Uuid
+  source           QuestionSource @default(AI_GENERATED)
+  topic            String
+  difficulty       String
+  questionText     String         @db.Text
+  expectedConcepts String[]
+  sequence         Int
+  createdAt        DateTime       @default(now())
+
+  round            InterviewRound @relation(fields: [interviewRoundId], references: [id], onDelete: Cascade)
+  parentQuestion   Question?      @relation("QuestionFollowUp", fields: [parentQuestionId], references: [id], onDelete: Cascade)
+  followUps        Question[]     @relation("QuestionFollowUp")
+  codingProblem    CodingProblem? @relation(fields: [codingProblemId], references: [id], onDelete: SetNull)
+  answer           Answer?
+
+  @@unique([interviewRoundId, sequence])
+}
+
+model Answer {
+  id                     String      @id @default(uuid()) @db.Uuid
+  questionId             String      @unique @db.Uuid
+  answerText             String      @db.Text
+  transcript             String?     @db.Text
+  responseDurationSeconds Int
+  submittedAt            DateTime    @default(now())
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  question               Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  evaluation             Evaluation?
+}
+
+model Evaluation {
+  id                String   @id @default(uuid()) @db.Uuid
+  answerId          String   @unique @db.Uuid
+  technicalAccuracy Int // Constraint: 1-10 evaluated in app code
+  completeness      Int // Constraint: 1-10 evaluated in app code
+  clarity           Int // Constraint: 1-10 evaluated in app code
+  coveredConcepts   String[]
+  missingConcepts   String[]
+  strengths         String[]
+  feedback          String   @db.Text
+  recommendedAction String
+  evaluatorVersion  String
+  createdAt         DateTime @default(now())
+
+  answer            Answer   @relation(fields: [answerId], references: [id], onDelete: Cascade)
+}
+
+model InterviewReport {
+  id                   String    @id @default(uuid()) @db.Uuid
+  interviewId          String    @unique @db.Uuid
+  overallScore         Int
+  technicalScore       Int?
+  problemSolvingScore  Int?
+  communicationScore   Int?
+  strengths            String[]
+  weaknesses           String[]
+  improvementPlan      String[]
+  summary              String?   @db.Text
+  generatedAt          DateTime  @default(now())
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  interview            Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+}
+
+model CodingProblem {
+  id               String           @id @default(uuid()) @db.Uuid
+  title            String
+  slug             String           @unique
+  description      String           @db.Text
+  difficulty       CodingDifficulty
+  constraints      String[]
+  examples         Json             // Array of examples { input: string, output: string, explanation?: string }
+  starterCode      Json             // Map of language -> starter code string
+  isActive         Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  expectedTimeMins Int              @default(30)
+  tags             String[]
+  requiredConcepts String[]
+  companyStyle     String?
+  hints            String[]         @db.Text
+
+  testCases        CodingTestCase[]
+  questions        Question[]
+  submissions      CodingSubmission[]
+}
+
+model CodingSubmission {
+  id               String              @id @default(uuid()) @db.Uuid
+  interviewRoundId String              @db.Uuid
+  codingProblemId  String              @db.Uuid
+  userId           String              @db.Uuid
+  language         ProgrammingLanguage
+  sourceCode       String              @db.Text
+  status           SubmissionStatus    @default(PENDING)
+  passedTests      Int
+  failedTests      Int                 @default(0)
+  totalTests       Int
+  executionTimeMs  Int?
+  memoryUsedKb     Int?
+  compilationError String?             @db.Text
+  runtimeError     String?             @db.Text
+  aiReview         Json?
+  submittedAt      DateTime            @default(now())
+  createdAt        DateTime            @default(now())
+
+  round            InterviewRound      @relation(fields: [interviewRoundId], references: [id], onDelete: Cascade)
+  problem          CodingProblem       @relation(fields: [codingProblemId], references: [id], onDelete: Restrict)
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, submittedAt])
+}
+
+model CodingTestCase {
+  id              String        @id @default(uuid()) @db.Uuid
+  codingProblemId String        @db.Uuid
+  input           String        @db.Text
+  expectedOutput  String        @db.Text
+  isSample        Boolean       @default(false)
+  isHidden        Boolean       @default(false)
+  explanation     String?       @db.Text
+
+  problem         CodingProblem @relation(fields: [codingProblemId], references: [id], onDelete: Cascade)
+
+  @@index([codingProblemId])
+}
+
+model RefreshSession {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  tokenHash   String   @unique
+  isRevoked   Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
