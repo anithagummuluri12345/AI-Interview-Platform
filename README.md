@@ -1,143 +1,219 @@
-# AI Interview Platform
+<div align="center">
 
-A production-grade mock interview coaching platform designed to evaluate candidate communication, technical skills, and vocabulary diversity in real-time.
+# 🚀 AI Interview Platform
 
----
+### Enterprise-Grade AI Powered Mock Interview & Coding Assessment Platform
 
-## Project Overview
-The AI Interview Platform is a flagship application enabling candidates to perform simulated, conversational voice/video mock interviews with an automated AI agent. The platform generates dynamic, job-tailored questions and delivers extensive, multi-dimensional feedback logs (transcriptions, sentiment analysis, speech rate, and filler-word detection) for candidate self-reflection and recruiter screening.
+<img src="docs/assets/logo-placeholder.png" width="140"/>
 
----
-
-## Current Architecture
-The system employs a decoupled, microservices-oriented architecture managed in a high-performance monorepo:
-* **Frontend Web App (`apps/web`):** Built with Next.js 15, handling SEO, marketing pages, administrative portals, candidate dashboards, and visual report metrics.
-* **WebSocket / REST Backend (`apps/api`):** Built with NestJS, serving as a stateful endpoint for real-time audio streams, WebSocket proxy configurations, and high-frequency candidate interaction.
-* **Database Package (`packages/db`):** Shared database entities and query clients leveraging PostgreSQL and Drizzle ORM.
-* **Shared Config Packages:** Centralized linting rules (`@repo/eslint-config`) and TypeScript models (`@repo/typescript-config`).
-
-```
-                    ┌────────────────────────┐
-                    │      Next.js Web       │
-                    │   http://localhost:3000│
-                    └──────────┬─────────────┘
-                               │ (REST & WebSockets)
-                               ▼
-                    ┌────────────────────────┐
-                    │       NestJS API       │
-                    │   http://localhost:4000│
-                    └──────────┬─────────────┘
-                               │
-               ┌───────────────┴───────────────┐
-               ▼                               ▼
-       ┌──────────────┐                ┌──────────────┐
-       │  PostgreSQL  │                │    Redis     │
-       │  Port 5432   │                │  Port 6379   │
-       └──────────────┘                └──────────────┘
-```
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)](https://nextjs.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue?logo=postgresql)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)](https://www.prisma.io/)
+[![Redis](https://img.shields.io/badge/Redis-7-red?logo=redis)](https://redis.io/)
+[![Google Gemini](https://img.shields.io/badge/Google-Gemini_AI-8E75B2)](https://ai.google.dev/)
+[![Monaco Editor](https://img.shields.io/badge/Monaco-Editor-blue)](https://microsoft.github.io/monaco-editor/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
 ---
 
-## Technology Stack
-* **Monorepo:** Turborepo + PNPM Workspaces
-* **Frontend:** Next.js 15 (App Router, React 19, TypeScript), Tailwind CSS v4, Shadcn UI, Zustand
-* **Backend:** NestJS 11 (TypeScript, Express Engine, validation pipes, global error filters)
-* **Database & Queue:** PostgreSQL (Neon) + Redis (Upstash) + Drizzle ORM + BullMQ
-* **Real-time AI Loop:** Gemini 2.0 Live API (WebSockets) + Gemini 2.5 Pro / Flash
-* **Containerization:** Docker & Docker Compose (dev postgres/redis instances)
-* **CI/CD:** GitHub Actions CI Pipeline
+### 🧠 AI-Powered • 🎤 Voice Interviews • 💻 Coding Interviews • 📄 Resume Intelligence • 📊 Analytics
+
+</div>
 
 ---
 
-## Prerequisites
-Ensure the following software packages are installed locally:
-* **Node.js:** v22.14.0 or higher
-* **pnpm:** v11.10.0 or higher
-* **Docker / Docker Desktop:** for running postgres & redis containers
+# 📖 Table of Contents
+
+- Project Overview
+- Motivation
+- Core Features
+- Key Highlights
+- Technology Stack
+- System Architecture
+- Monorepo Structure
+- High-Level Request Flow
+- Feature Showcase
+- Screenshots
 
 ---
 
-## Environment Setup
-Create local `.env` files in each workspace by copying their corresponding `.env.example` configurations.
+# 🌟 Project Overview
 
-1. **Root Configuration (`.env.example`):**
-   ```bash
-   DATABASE_URL=postgres://username:password@localhost:5432/database_name
-   REDIS_URL=redis://localhost:6379
-   PORT=4000
-   NODE_ENV=development
-   ```
+The **AI Interview Platform** is a production-grade full-stack application that simulates real-world software engineering interviews using **Google Gemini AI**.
 
-2. **Frontend Configuration (`apps/web/.env.example`):**
-   ```bash
-   NEXT_PUBLIC_API_URL=http://localhost:4000
-   ```
+Unlike traditional interview preparation websites that rely on predefined question banks, this platform dynamically generates personalized interview experiences based on a candidate's:
 
-3. **Backend Configuration (`apps/api/.env.example`):**
-   ```bash
-   PORT=4000
-   NODE_ENV=development
-   DATABASE_URL=postgres://username:password@localhost:5432/database_name
-   REDIS_URL=redis://localhost:6379
-   ```
+- Resume
+- Skills
+- Experience Level
+- Target Company
+- Interview Type
+- Interview Duration
+- Preferred Programming Language
+
+The platform evaluates every interview in real time and automatically generates an extensive AI feedback report highlighting technical knowledge, communication quality, coding ability, confidence, vocabulary diversity, and personalized learning recommendations.
+
+The project has been designed following modern SaaS architecture principles using a scalable Turborepo monorepo, modular NestJS backend, Next.js frontend, PostgreSQL database, Redis caching, and Google Gemini AI services.
+
+---
+# 📸 Application Showcase
+
+Explore the major features of the AI Interview Platform below.
 
 ---
 
-## Installation & Setup
+## 🏠 Landing Page
 
-1. **Clone the Repository & Navigate to Root:**
-   ```bash
-   git clone <repository_url>
-   cd ai-interview-platform
-   ```
+> The landing page introduces the platform, highlighting AI-powered interview preparation, coding assessments, and resume-based interview simulations.
 
-2. **Install Workspace Dependencies:**
-   ```bash
-   pnpm install
-   ```
+<div align="center">
 
-3. **Approve Native Build Scripts:**
-   ```bash
-   pnpm approve-builds --all
-   ```
+<img width="945" height="413" alt="Screenshot 2026-07-14 220722" src="https://github.com/user-attachments/assets/91acee80-66c1-4c04-a4b7-800d0870082e" />
 
-4. **Spin up local Postgres and Redis databases:**
-   ```bash
-   docker-compose up -d
-   ```
+
+</div>
 
 ---
 
-## Development & Production Commands
+## 🔐 Authentication
 
-Run the following scripts from the repository root:
+> Secure JWT-based authentication with user registration and login.
 
-* **Start all apps in development mode (with hot reloading):**
-  ```bash
-  pnpm dev
-  ```
-* **Lint the entire workspace:**
-  ```bash
-  pnpm lint
-  ```
-* **Compile and build for production:**
-  ```bash
-  pnpm build
-  ```
-* **Verify TypeScript type correctness across all packages:**
-  ```bash
-  pnpm -r exec tsc --noEmit
-  ```
+<div align="center">
+<img width="482" height="401" alt="Screenshot 2026-07-14 220736" src="https://github.com/user-attachments/assets/729c7566-e4ca-42e8-8936-f87c12e052ae" />  
+</div>
+<div align="center">
+<img width="398" height="410" alt="Screenshot 2026-07-14 220751" src="https://github.com/user-attachments/assets/17a161ce-9340-446c-95b2-250b21c25202" />
+</div>
 
 ---
 
-## Running URLs
-* **Frontend Application:** [http://localhost:3000](http://localhost:3000)
-* **Backend API Gateway:** [http://localhost:4000](http://localhost:4000)
-* **Backend Health Check:** [http://localhost:4000/health](http://localhost:4000/health)
+## 📊 Dashboard
+
+> Centralized dashboard showing interview history, analytics, reports, and quick actions.
+
+<div align="center">
+
+<img width="945" height="410" alt="Screenshot 2026-07-14 220808" src="https://github.com/user-attachments/assets/9ccd6266-0432-4eab-83f6-6cc655326a56" />
+
+</div>
+<div align="center">
+
+<img width="948" height="409" alt="Screenshot 2026-07-14 220824" src="https://github.com/user-attachments/assets/eb070073-0c6a-4724-9965-0bdf9ff8f3a8" />
+
+</div>
+<div align="center">
+
+<img width="944" height="413" alt="Screenshot 2026-07-14 220839" src="https://github.com/user-attachments/assets/aec42f5f-5224-43de-b894-2c2f46611048" />
+
+
+</div>
+
+---
+## 📄 Company and role specific
+
+<img width="560" height="407" alt="Screenshot 2026-07-14 220914" src="https://github.com/user-attachments/assets/9c3b9bad-3aa6-460c-bc23-c93d393c1b7c" />
+<img width="550" height="409" alt="Screenshot 2026-07-14 220940" src="https://github.com/user-attachments/assets/cc50d48d-dc01-4ccd-ad3c-88d29679a6b5" />
+<img width="544" height="409" alt="Screenshot 2026-07-14 220949" src="https://github.com/user-attachments/assets/de4b9b21-ed6d-4d16-8d14-d529aa0eaa22" />
+<img width="580" height="415" alt="Screenshot 2026-07-14 221012" src="https://github.com/user-attachments/assets/707d7984-f8b7-46aa-98d7-5da1669b2719" />
+<img width="839" height="413" alt="Screenshot 2026-07-14 221031" src="https://github.com/user-attachments/assets/1f5494b8-a872-458c-907a-d2f8bfc2bc68" />
+
+
+## 📄 Resume Management
+
+> Upload, manage, and archive resumes. AI extracts candidate skills to personalize interviews.
+
+<div align="center">
+
+![Resume Upload](docs/screenshots/resume-upload.png)
+
+</div>
 
 ---
 
-## Current Project Status
-* **Phase 1 (Complete):** Monorepo structure, Next.js web application, NestJS backend boilerplate, Drizzle database schemas, configurations linting, dockerized local databases, and GitHub Actions CI workflow are established.
-* **Phase 2 (Pending Approval):** Resume parsing & question generator modules.
+## 🎯 Interview Creation Wizard
+
+> Multi-step interview configuration supporting interview type, company selection, experience level, AI mode, and coding interviews.
+
+<div align="center">
+
+![Interview Wizard](docs/screenshots/interview-wizard.png)
+
+</div>
+
+---
+
+## 🤖 AI Text Interview
+
+> Dynamic interview session powered by Google Gemini AI with context-aware follow-up questions.
+
+<div align="center">
+
+![Text Interview](docs/screenshots/text-interview.png)
+
+</div>
+
+---
+
+## 🎤 AI Voice Interview
+
+> Real-time conversational interview powered by Gemini Live API with transcript generation.
+
+<div align="center">
+
+![Voice Interview](docs/screenshots/voice-interview.png)
+
+</div>
+
+---
+
+## 💻 Coding Interview Workspace
+
+> Professional Monaco Editor inspired by LeetCode and HackerRank featuring code execution, hidden test cases, AI code review, and execution statistics.
+
+<div align="center">
+
+![Coding Interview](docs/screenshots/coding-editor.png)
+
+</div>
+
+---
+
+## 📑 AI Performance Report
+
+> Detailed AI-generated interview report evaluating communication, technical knowledge, coding ability, and personalized recommendations.
+
+<div align="center">
+
+![Performance Report](docs/screenshots/report.png)
+
+</div>
+
+---
+
+## 📈 Analytics Dashboard
+
+> Visual insights into interview performance, company-wise practice, coding progress, and score trends.
+
+<div align="center">
+
+![Analytics](docs/screenshots/analytics.png)
+
+</div>
+
+---
+
+## 🔄 Interview Replay
+
+> Replay completed interview sessions with a chronological timeline, coding submissions, and AI feedback.
+
+<div align="center">
+
+![Replay](docs/screenshots/replay.png)
+
+</div>
+
+---
