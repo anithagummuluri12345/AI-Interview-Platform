@@ -1231,3 +1231,518 @@ Implemented security mechanisms include:
 - Input Sanitization
 - Protected API Routes
 - Environment Variable Isolation
+# 🏗 Architecture Diagrams
+
+## 🏛 Enterprise System Architecture
+
+``` mermaid
+flowchart TB
+User[👤 Candidate]
+subgraph Frontend
+A[Next.js 15 Frontend]
+B[Dashboard]
+C[Interview UI]
+D[Monaco IDE]
+end
+subgraph Backend
+E[NestJS API Gateway]
+F[Authentication]
+G[Interview Engine]
+H[Resume Service]
+I[Coding Engine]
+J[Analytics]
+K[AI Report Service]
+end
+subgraph Infrastructure
+L[(PostgreSQL)]
+M[(Redis)]
+N[Resume Storage]
+end
+subgraph AI
+O[Google Gemini AI]
+P[Gemini Live API]
+end
+User-->A
+A-->E
+E-->F
+E-->G
+E-->H
+E-->I
+E-->J
+E-->K
+F-->L
+G-->L
+H-->L
+I-->L
+J-->L
+K-->L
+H-->N
+G-->O
+K-->O
+I-->O
+G-->P
+```
+
+------------------------------------------------------------------------
+
+## 📦 Monorepo Architecture
+
+``` mermaid
+flowchart TD
+Repo[AI Interview Platform]
+Repo-->Apps
+Repo-->Packages
+Apps-->Web
+Apps-->API
+Packages-->Database
+Packages-->TypescriptConfig
+Packages-->ESLintConfig
+Web-->Dashboard
+Web-->InterviewUI
+Web-->Analytics
+Web-->Reports
+API-->Auth
+API-->Resume
+API-->Interview
+API-->Coding
+API-->AnalyticsAPI
+API-->ReportsAPI
+```
+
+------------------------------------------------------------------------
+
+## 📄 Resume Processing Pipeline
+
+``` mermaid
+flowchart LR
+A[Upload Resume]-->B[Store PDF]
+B-->C[Parse Resume]
+C-->D[Extract Skills]
+D-->E[Create Candidate Profile]
+E-->F[Generate AI Context]
+F-->G[Personalized Questions]
+```
+
+------------------------------------------------------------------------
+
+## 🤖 AI Interview Engine
+
+``` mermaid
+flowchart LR
+A[Resume]-->F[Prompt Builder]
+B[Company]-->F
+C[Experience]-->F
+D[Interview Type]-->F
+E[Skills]-->F
+F-->G[Google Gemini]
+G-->H[Question]
+H-->I[Candidate]
+I-->J[Answer]
+J-->G
+G-->K[Follow-up Question]
+G-->L[Score]
+```
+
+------------------------------------------------------------------------
+
+## 🎤 Voice Interview Architecture
+
+``` mermaid
+flowchart LR
+A[Browser Microphone]-->B[WebRTC]
+B-->C[NestJS Gateway]
+C-->D[Gemini Live API]
+D-->E[AI Response]
+E-->F[Transcript]
+F-->G[Evaluation]
+G-->H[Performance Report]
+```
+
+------------------------------------------------------------------------
+
+## 💻 Coding Interview Architecture
+
+``` mermaid
+flowchart LR
+A[Candidate]-->B[Monaco Editor]
+B-->C[Run API]
+C-->D[Execution Engine]
+D-->E[Sample Tests]
+E-->F[Hidden Tests]
+F-->G[AI Code Review]
+G-->H[Final Report]
+```
+
+------------------------------------------------------------------------
+
+## 🔐 Authentication Flow
+
+``` mermaid
+sequenceDiagram
+actor Candidate
+participant Frontend
+participant Backend
+participant PostgreSQL
+Candidate->>Frontend: Login
+Frontend->>Backend: POST /auth/login
+Backend->>PostgreSQL: Validate User
+PostgreSQL-->>Backend: User
+Backend-->>Frontend: JWT + Refresh Token
+Frontend-->>Candidate: Dashboard
+```
+
+------------------------------------------------------------------------
+
+## 🔄 Interview Lifecycle
+
+``` mermaid
+stateDiagram-v2
+[*]-->Draft
+Draft-->Ready
+Ready-->TextInterview
+Ready-->VoiceInterview
+Ready-->CodingInterview
+TextInterview-->Completed
+VoiceInterview-->Completed
+CodingInterview-->Completed
+Completed-->Report
+Report-->Analytics
+```
+
+------------------------------------------------------------------------
+
+## 📑 AI Evaluation Pipeline
+
+``` mermaid
+flowchart TD
+A[Interview]-->B[Transcript]
+B-->C[Communication Analysis]
+C-->D[Technical Evaluation]
+D-->E[Coding Evaluation]
+E-->F[Confidence Analysis]
+F-->G[Overall Score]
+G-->H[Final Report]
+```
+
+------------------------------------------------------------------------
+
+## ☁ Deployment Architecture
+
+``` mermaid
+flowchart LR
+A[User]-->B[Vercel]
+B-->C[Next.js Frontend]
+C-->D[Railway]
+D-->E[NestJS API]
+E-->F[(PostgreSQL)]
+E-->G[(Redis)]
+E-->H[Google Gemini AI]
+E-->I[Resume Storage]
+```
+
+------------------------------------------------------------------------
+
+## 🗄 Database Architecture
+
+``` mermaid
+erDiagram
+USER ||--o{ RESUME : owns
+USER ||--o{ INTERVIEW : creates
+INTERVIEW ||--o{ QUESTION : contains
+QUESTION ||--o{ ANSWER : receives
+INTERVIEW ||--|| REPORT : generates
+
+USER {
+uuid id
+string email
+string password
+}
+
+RESUME {
+uuid id
+string fileName
+string skills
+}
+
+INTERVIEW {
+uuid id
+string type
+string company
+string status
+}
+
+QUESTION {
+uuid id
+string content
+}
+
+ANSWER {
+uuid id
+string response
+}
+
+REPORT {
+uuid id
+int score
+}
+```
+# 🗄 Database Schema
+
+The platform uses **PostgreSQL** with **Prisma ORM** to manage all application data.
+
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+
+USER ||--o{ RESUME : owns
+USER ||--o{ INTERVIEW : creates
+USER ||--o{ REPORT : receives
+
+RESUME ||--o{ INTERVIEW : used_in
+
+INTERVIEW ||--o{ QUESTION : contains
+QUESTION ||--o{ ANSWER : receives
+
+INTERVIEW ||--|| REPORT : generates
+
+USER {
+UUID id
+String email
+String password
+String fullName
+}
+
+RESUME {
+UUID id
+String fileName
+String extractedSkills
+Date uploadedAt
+}
+
+INTERVIEW {
+UUID id
+String company
+String role
+String interviewType
+String status
+}
+
+QUESTION {
+UUID id
+String content
+String difficulty
+}
+
+ANSWER {
+UUID id
+String response
+String feedback
+}
+
+REPORT {
+UUID id
+Float score
+String summary
+}
+```
+# 🌐 REST API Overview
+
+```mermaid
+flowchart LR
+    Client --> Authentication
+    Authentication --> ResumeAPI
+    ResumeAPI --> InterviewAPI
+    InterviewAPI --> CodingAPI
+    CodingAPI --> AnalyticsAPI
+    AnalyticsAPI --> ReportsAPI
+    ReportsAPI --> Database
+```
+
+
+## Main API Endpoints
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | /auth/register | Register User |
+| POST | /auth/login | Login |
+| GET | /users/profile | User Profile |
+| POST | /resume/upload | Upload Resume |
+| GET | /resume | Resume List |
+| POST | /interviews | Create Interview |
+| POST | /interviews/:id/start | Start Interview |
+| POST | /coding/run | Run Code |
+| POST | /coding/submit | Submit Code |
+| GET | /reports/:id | Interview Report |
+| GET | /analytics | Dashboard Analytics |
+
+# 🐳 Docker Architecture
+
+```mermaid
+flowchart LR
+    Developer --> DockerCompose
+    DockerCompose --> NextJS
+    DockerCompose --> NestJS
+    NestJS --> PostgreSQL
+    NestJS --> Redis
+    NestJS --> GeminiAI
+```
+The project uses Docker Compose to provision:
+
+- PostgreSQL
+- Redis
+- Backend
+- Frontend
+
+# ☁ Production Deployment
+
+```mermaid
+flowchart TD
+    Developer --> GitHub
+    GitHub --> Vercel
+    GitHub --> Railway
+
+    Vercel --> NextJSFrontend
+    Railway --> NestJSBackend
+
+    NestJSBackend --> PostgreSQL
+    NestJSBackend --> Redis
+    NestJSBackend --> GeminiAI
+    NestJSBackend --> ResumeStorage
+```
+
+## Deployment Stack
+
+| Component | Platform |
+|------------|----------|
+| Frontend | Vercel |
+| Backend | Railway |
+| Database | PostgreSQL |
+| Cache | Redis |
+| AI | Google Gemini |
+# ⚙ Environment Variables
+
+| Variable | Description |
+|------------|-------------|
+| DATABASE_URL | PostgreSQL Database |
+| REDIS_URL | Redis Cache |
+| GEMINI_API_KEY | Google Gemini |
+| JWT_ACCESS_SECRET | JWT Access Token |
+| JWT_REFRESH_SECRET | Refresh Token |
+| NEXT_PUBLIC_API_URL | Backend URL |
+# 🚀 Installation
+
+## Clone Repository
+
+```bash
+git clone https://github.com/<username>/AI-Interview-Platform.git
+```
+
+## Install Dependencies
+
+```bash
+pnpm install
+```
+
+## Start Docker
+
+```bash
+docker compose up -d
+```
+
+## Run Development
+
+```bash
+pnpm dev
+```
+
+---
+
+## Available URLs
+
+| Service | URL |
+|----------|-----|
+| Frontend | http://localhost:3000 |
+| Backend | http://localhost:4000 |
+| Swagger | http://localhost:4000/api |
+```
+# 🧪 Testing Strategy
+
+```mermaid
+flowchart LR
+
+Unit Tests
+
+-->
+
+Integration Tests
+
+-->
+
+End-to-End Tests
+
+-->
+
+Production Build
+```
+
+The application uses:
+
+- Unit Testing
+- Integration Testing
+- End-to-End Testing
+- Manual QA
+
+# 📈 Scalability
+
+```mermaid
+flowchart TD
+    Users --> LoadBalancer
+    LoadBalancer --> API1
+    LoadBalancer --> API2
+    LoadBalancer --> API3
+
+    API1 --> Redis
+    API2 --> Redis
+    API3 --> Redis
+
+    Redis --> PostgreSQL
+```
+
+
+
+Future improvements include:
+
+- Horizontal Scaling
+- Kubernetes
+- Distributed Cache
+- CDN
+
+# 🛣 Future Roadmap
+
+- AI Video Interviews
+- Emotion Detection
+- ATS Resume Scoring
+- AI Career Coach
+- Interview Scheduling
+- Team Recruitment Portal
+- Recruiter Dashboard
+- Mobile Application
+- Multi-language Interviews
+- Live Pair Programming
+
+# 👨‍💻 Author
+
+**Anitha Gummuluri**
+
+B.Tech Computer Science Engineering
+
+VIT-AP University
+
+GitHub: https://github.com/anithagummuluri12345
+
+Email: anithagummuluri@gmail.com
+
+# 📜 License
+
+This project is licensed under the MIT License.
